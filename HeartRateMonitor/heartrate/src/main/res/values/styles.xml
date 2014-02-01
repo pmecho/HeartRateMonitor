@@ -1,0 +1,17 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
+        <item name="android:actionBarStyle">@style/AppActionBar</item>
+    </style>
+
+    <style name="AppActionBar" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@color/main_red</item>
+    </style>
+
+    <style name="BigTextStyle">
+        <item name="android:textSize">200sp</item>
+        <item name="android:fontFamily">sans-serif-thin</item>
+    </style>
+
+</resources>
