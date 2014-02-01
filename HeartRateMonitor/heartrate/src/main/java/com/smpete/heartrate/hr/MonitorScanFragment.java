@@ -121,7 +121,9 @@ public class MonitorScanFragment extends DialogFragment implements AdapterView.O
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final BluetoothDevice device = mLeDeviceListAdapter.getDevice(position);
-        if (device == null) return;
+        if (device == null) {
+            return;
+        }
         final Intent intent = new Intent();
         intent.putExtra(HeartRateFragment.EXTRAS_DEVICE_NAME, device.getName());
         intent.putExtra(HeartRateFragment.EXTRAS_DEVICE_ADDRESS, device.getAddress());
