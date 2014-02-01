@@ -24,10 +24,12 @@ import butterknife.InjectView;
 import com.smpete.heartrate.R;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class MonitorScanFragment extends DialogFragment implements AdapterView.OnItemClickListener {
 
+    private static final String HEART_RATE_SERVICE_UUID = "0000180D-0000-1000-8000-00805f9b34fb";
     private static final int REQUEST_ENABLE_BT = 1001;
     private static final long SCAN_PERIOD = 10000;
 
@@ -108,7 +110,8 @@ public class MonitorScanFragment extends DialogFragment implements AdapterView.O
             }, SCAN_PERIOD);
 
             mScanning = true;
-            mBluetoothAdapter.startLeScan(mHrScanCallback);
+            UUID hrMonitorService = UUID.fromString(HEART_RATE_SERVICE_UUID);
+            mBluetoothAdapter.startLeScan(new UUID[] {hrMonitorService}, mHrScanCallback);
         } else {
             mScanning = false;
             mBluetoothAdapter.stopLeScan(mHrScanCallback);
