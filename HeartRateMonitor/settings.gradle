@@ -1,1 +1,2 @@
-include ':heartrate'
+include ':heartrate', ':android-betterpickers:library'
+

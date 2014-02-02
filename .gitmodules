@@ -1,0 +1,3 @@
+[submodule "HeartRateMonitor/android-betterpickers"]
+	path = HeartRateMonitor/android-betterpickers
+	url = git@github.com:smpete/android-betterpickers.git
