@@ -19,4 +19,11 @@
 
     <string name="scan_dialog_title">Scanning for monitor</string>
     <string name="scan_dialog_scanning">Scanning…</string>
+    
+    <string name="hiit_setup_warm_up">Warm-up:</string>
+    <string name="hiit_setup_intervals">Intervals:</string>
+    <string name="hiit_setup_work">Work:</string>
+    <string name="hiit_setup_rest">Rest:</string>
+    <string name="hiit_setup_cool_down">Cool-down:</string>
+    <string name="hiit_setup_start">START</string>
 </resources>
