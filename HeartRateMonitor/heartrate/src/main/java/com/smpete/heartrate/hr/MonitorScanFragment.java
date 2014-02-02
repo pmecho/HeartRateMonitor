@@ -29,7 +29,6 @@ import java.util.UUID;
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class MonitorScanFragment extends DialogFragment implements AdapterView.OnItemClickListener {
 
-    private static final String HEART_RATE_SERVICE_UUID = "0000180D-0000-1000-8000-00805f9b34fb";
     private static final int REQUEST_ENABLE_BT = 1001;
     private static final long SCAN_PERIOD = 10000;
 
@@ -37,16 +36,14 @@ public class MonitorScanFragment extends DialogFragment implements AdapterView.O
     private LeDeviceListAdapter mLeDeviceListAdapter;
     private boolean mScanning;
 
-
     @InjectView(R.id.list_view) ListView mListView;
-    @InjectView(android.R.id.empty) TextView mStatusText;
+    @InjectView(android.R.id.empty) View mEmptyView;
 
     // Device scan callback.
     private BluetoothAdapter.LeScanCallback mHrScanCallback =
             new BluetoothAdapter.LeScanCallback() {
                 @Override
-                public void onLeScan(final BluetoothDevice device, int rssi,
-                                     byte[] scanRecord) {
+                public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -63,10 +60,10 @@ public class MonitorScanFragment extends DialogFragment implements AdapterView.O
         View v = inflater.inflate(R.layout.fragment_monitor_scan, container, false);
         ButterKnife.inject(this, v);
 
-        mListView.setEmptyView(mStatusText);
         mLeDeviceListAdapter = new LeDeviceListAdapter(inflater);
         mListView.setAdapter(mLeDeviceListAdapter);
         mListView.setOnItemClickListener(this);
+        mListView.setEmptyView(mEmptyView);
 
         return v;
     }
@@ -110,7 +107,7 @@ public class MonitorScanFragment extends DialogFragment implements AdapterView.O
             }, SCAN_PERIOD);
 
             mScanning = true;
-            UUID hrMonitorService = UUID.fromString(HEART_RATE_SERVICE_UUID);
+            UUID hrMonitorService = UUID.fromString(BluetoothUuids.HEART_RATE_SERVICE_UUID);
             mBluetoothAdapter.startLeScan(new UUID[] {hrMonitorService}, mHrScanCallback);
         } else {
             mScanning = false;
@@ -125,7 +122,6 @@ public class MonitorScanFragment extends DialogFragment implements AdapterView.O
             return;
         }
         final Intent intent = new Intent();
-        intent.putExtra(HeartRateFragment.EXTRAS_DEVICE_NAME, device.getName());
         intent.putExtra(HeartRateFragment.EXTRAS_DEVICE_ADDRESS, device.getAddress());
         if (mScanning) {
             mBluetoothAdapter.stopLeScan(mHrScanCallback);

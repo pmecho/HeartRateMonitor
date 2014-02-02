@@ -7,8 +7,10 @@ import android.bluetooth.BluetoothGattService;
 import android.content.*;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,27 +21,40 @@ import android.widget.Toast;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
+import com.smpete.heartrate.AppPrefs;
 import com.smpete.heartrate.R;
+import rx.Observable;
+import rx.Observer;
+import rx.android.observables.AndroidObservable;
+import rx.subjects.BehaviorSubject;
+import rx.util.functions.Action1;
 
 import java.util.List;
-import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 public class HeartRateFragment extends Fragment {
 
     private static final String SCAN_FRAGMENT_TAG = "scan";
     private static final int REQUEST_CODE_SCAN = 1001;
+    private static final int REQUEST_CODE_ENABLE_BT = 1002;
 
-    public static final String EXTRAS_DEVICE_NAME = "deviceName";
+    private static final int MONITOR_STATE_DISCONNECTED = 0;
+    private static final int MONITOR_STATE_PREVIOUS_CONNECTING = 1;
+    private static final int MONITOR_STATE_SCANNING = 2;
+    private static final int MONITOR_STATE_CONNECTING = 3;
+    private static final int MONITOR_STATE_CONNECTED = 4;
+
+
     public static final String EXTRAS_DEVICE_ADDRESS = "deviceAddress";
 
 
     @InjectView(R.id.heart_rate_value) TextView mHeartRateValue;
-    @InjectView(R.id.scan_button) Button mScanButton;
+    @InjectView(R.id.action_button) Button mActionButton;
 
-    private boolean mHeartRateConnected;
+    private int mMonitorState;
     private BluetoothLeService mBluetoothLeService;
     private String mDeviceAddress;
-
+    private boolean mFirstAutoConnect = true;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -51,7 +66,8 @@ public class HeartRateFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        updateViews();
+
+        mDeviceAddress = AppPrefs.INSTANCE.getLastHeartRateAddress();
 
         Intent gattServiceIntent = new Intent(getActivity(), BluetoothLeService.class);
         getActivity().bindService(gattServiceIntent, mServiceConnection, Activity.BIND_AUTO_CREATE);
@@ -81,38 +97,20 @@ public class HeartRateFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE_SCAN) {
             if (resultCode == Activity.RESULT_OK) {
-                String name = data.getStringExtra(EXTRAS_DEVICE_NAME);
                 mDeviceAddress = data.getStringExtra(EXTRAS_DEVICE_ADDRESS);
-
-                Log.d("XXX", "Name: " + name);
-                Log.d("XXX", "Address: " + mDeviceAddress);
-
-                mHeartRateConnected = true;
-
+                setState(MONITOR_STATE_CONNECTING);
                 mBluetoothLeService.connect(mDeviceAddress);
             } else {
-                mHeartRateConnected = false;
+                setState(MONITOR_STATE_DISCONNECTED);
             }
-            updateViews();
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    private void updateViews() {
-        if (mHeartRateConnected) {
-            mHeartRateValue.setVisibility(View.VISIBLE);
-            mScanButton.setVisibility(View.GONE);
         } else {
-            mHeartRateValue.setVisibility(View.GONE);
-            mScanButton.setVisibility(View.VISIBLE);
+            super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
-    @OnClick(R.id.scan_button)
-    public void scan() {
-        MonitorScanFragment scanFragment = new MonitorScanFragment();
-        scanFragment.setTargetFragment(this, REQUEST_CODE_SCAN);
-        scanFragment.show(getFragmentManager(), SCAN_FRAGMENT_TAG);
+    @OnClick(R.id.action_button)
+    public void onActionTapped() {
+        setState(MONITOR_STATE_PREVIOUS_CONNECTING);
     }
 
 
@@ -121,32 +119,77 @@ public class HeartRateFragment extends Fragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
-            if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
-//                mConnected = true;
-//                updateConnectionState(R.string.connected);
-//                invalidateOptionsMenu();
-            } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
-//                mConnected = false;
-//                updateConnectionState(R.string.disconnected);
-//                invalidateOptionsMenu();
-//                clearUI();
-            } else if (BluetoothLeService.
-                    ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
+            if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
+                setState(MONITOR_STATE_DISCONNECTED);
+            } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
+                // Register for heart rate
                 List<BluetoothGattService> supportedGattServices = mBluetoothLeService.getSupportedGattServices();
                 for (BluetoothGattService gattService : supportedGattServices) {
-                    BluetoothGattCharacteristic characteristic = gattService.getCharacteristic(UUID.fromString(SampleGattAttributes.HEART_RATE_MEASUREMENT));
+                    BluetoothGattCharacteristic characteristic = gattService.getCharacteristic(BluetoothLeService.UUID_HEART_RATE_MEASUREMENT);
                     if (characteristic != null) {
                         mBluetoothLeService.setCharacteristicNotification(characteristic, true);
+                        AppPrefs.INSTANCE.setLastHeartRateAddress(mDeviceAddress);
+                        setState(MONITOR_STATE_CONNECTED);
+                        break;
                     }
                 }
-                // Show all the supported services and characteristics on the
-                // user interface.
-//                displayGattServices(mBluetoothLeService.getSupportedGattServices());
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 mHeartRateValue.setText(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
             }
         }
     };
+
+    private void setState(int state) {
+        mMonitorState = state;
+        switch (state) {
+            case MONITOR_STATE_DISCONNECTED:
+                mActionButton.setEnabled(true);
+                mActionButton.setText(R.string.status_connect);
+                mHeartRateValue.setText(R.string.no_heart_rate);
+                break;
+            case MONITOR_STATE_PREVIOUS_CONNECTING:
+                if (TextUtils.isEmpty(mDeviceAddress)) {
+                    setState(MONITOR_STATE_SCANNING);
+                } else {
+                    connect();
+                }
+                break;
+            case MONITOR_STATE_SCANNING:
+                mActionButton.setEnabled(false);
+                mActionButton.setText(R.string.status_scanning);
+                MonitorScanFragment scanFragment = new MonitorScanFragment();
+                scanFragment.setTargetFragment(HeartRateFragment.this, REQUEST_CODE_SCAN);
+                scanFragment.show(getFragmentManager(), SCAN_FRAGMENT_TAG);
+                break;
+            case MONITOR_STATE_CONNECTING:
+                connect();
+                break;
+            case MONITOR_STATE_CONNECTED:
+                mActionButton.setText(R.string.status_connected);
+                // TODO Fade out
+                break;
+        }
+    }
+
+    private void connect() {
+        mActionButton.setEnabled(false);
+        mActionButton.setText(R.string.status_connecting);
+        mBluetoothLeService.connect(mDeviceAddress);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if ((mFirstAutoConnect && mMonitorState == MONITOR_STATE_PREVIOUS_CONNECTING) || mMonitorState == MONITOR_STATE_CONNECTING) {
+                    mBluetoothLeService.disconnect();
+                    setState(MONITOR_STATE_DISCONNECTED);
+                }
+                else if (!mFirstAutoConnect && mMonitorState == MONITOR_STATE_PREVIOUS_CONNECTING) {
+                    mBluetoothLeService.disconnect();
+                    setState(MONITOR_STATE_SCANNING);
+                }
+                mFirstAutoConnect = false;
+            }
+        }, 5000);
+    }
 
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
 
@@ -156,8 +199,11 @@ public class HeartRateFragment extends Fragment {
             if (!mBluetoothLeService.initialize()) {
                 Log.e("XXX", "Unable to initialize Bluetooth");
             }
-            // Automatically connects to the device upon successful start-up initialization.
-            mBluetoothLeService.connect(mDeviceAddress);
+
+            // Auto connect to last device
+            if (mDeviceAddress != null) {
+                setState(MONITOR_STATE_PREVIOUS_CONNECTING);
+            }
         }
 
         @Override

@@ -12,6 +12,11 @@
     <string name="unknown_device">Unknown device.</string>
     <string name="connect_button_text">CONNECT</string>
 
+    <string name="status_connect">CONNECT</string>
+    <string name="status_connected">Connected</string>
+    <string name="status_connecting">Connecting…</string>
+    <string name="status_scanning">Scanning…</string>
+
     <string name="scan_dialog_title">Scanning for monitor</string>
     <string name="scan_dialog_scanning">Scanning…</string>
 </resources>
