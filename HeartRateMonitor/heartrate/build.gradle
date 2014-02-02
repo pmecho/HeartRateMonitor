@@ -2,7 +2,7 @@ apply plugin: 'android'
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "19.0.0"
+    buildToolsVersion "19.0.1"
 
     defaultConfig {
         minSdkVersion 18
@@ -19,10 +19,14 @@ android {
 }
 
 dependencies {
-    compile 'com.jakewharton:butterknife:4.0.1'
-    compile 'com.android.support:support-v4:19.0.1'
+    compile 'com.jakewharton:butterknife:4.0.+'
+    compile 'com.android.support:support-v4:19.0.+'
     compile 'com.android.support:support-v13:+'
     compile 'com.netflix.rxjava:rxjava-core:0.16.+'
     compile 'com.netflix.rxjava:rxjava-android:0.16.+'
+    compile ('com.doomonafireball.betterpickers:library:1.5.+') {
+        exclude group: 'com.android.support', module: 'support-v4'
+    }
+
 
 }
