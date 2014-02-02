@@ -29,6 +29,7 @@ import rx.android.observables.AndroidObservable;
 import rx.subjects.BehaviorSubject;
 import rx.util.functions.Action1;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -36,7 +37,8 @@ public class HeartRateFragment extends Fragment {
 
     private static final String SCAN_FRAGMENT_TAG = "scan";
     private static final int REQUEST_CODE_SCAN = 1001;
-    private static final int REQUEST_CODE_ENABLE_BT = 1002;
+
+    private static final int MOVING_AVERAGE_LENGTH = 5;
 
     private static final int MONITOR_STATE_DISCONNECTED = 0;
     private static final int MONITOR_STATE_PREVIOUS_CONNECTING = 1;
@@ -55,6 +57,10 @@ public class HeartRateFragment extends Fragment {
     private BluetoothLeService mBluetoothLeService;
     private String mDeviceAddress;
     private boolean mFirstAutoConnect = true;
+
+    private int[] mPreviousRates = new int[MOVING_AVERAGE_LENGTH];
+    private int mPreviousIndex = 0;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -113,6 +119,20 @@ public class HeartRateFragment extends Fragment {
         setState(MONITOR_STATE_PREVIOUS_CONNECTING);
     }
 
+    public void updateRate(String rate) {
+        mPreviousRates[mPreviousIndex++] = Integer.valueOf(rate);
+        int total = 0;
+        for (int i = 0; i < MOVING_AVERAGE_LENGTH; i++) {
+            if (mPreviousRates[i] != 0) {
+                total += mPreviousRates[i];
+            }
+        }
+        total /= MOVING_AVERAGE_LENGTH;
+        mPreviousIndex %= MOVING_AVERAGE_LENGTH;
+
+        mHeartRateValue.setText(String.format("%d", total));
+    }
+
 
     private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
         @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
@@ -134,7 +154,7 @@ public class HeartRateFragment extends Fragment {
                     }
                 }
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
-                mHeartRateValue.setText(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
+                updateRate(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
             }
         }
     };
