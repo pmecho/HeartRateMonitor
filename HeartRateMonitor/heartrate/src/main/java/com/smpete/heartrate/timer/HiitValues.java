@@ -116,7 +116,7 @@ public class HiitValues implements Parcelable {
         return mMillisRemaining;
     }
 
-    public void setmMillisRemaining(long millisRemaining) {
+    public void setMillisRemaining(long millisRemaining) {
         mMillisRemaining = millisRemaining;
     }
 

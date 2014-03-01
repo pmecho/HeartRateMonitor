@@ -227,9 +227,9 @@ public class SetTimerFragment extends Fragment implements HmsPickerDialogFragmen
     Runnable mTimeUpdateThread = new Runnable() {
         @Override
         public void run() {
-            long curTime = SystemClock.elapsedRealtime();
-            long totalTime = mAccumulatedTime + (curTime - mStartTime);
-            mHiitValues.setmMillisRemaining(totalTime);
+            long elapsedTime = SystemClock.elapsedRealtime() - mStartTime;
+            mStartTime = SystemClock.elapsedRealtime();
+            mHiitValues.setMillisRemaining(mHiitValues.getMillisRemaining() - elapsedTime);
             updateTimerUi();
             mHandler.postDelayed(mTimeUpdateThread, 10);
         }
