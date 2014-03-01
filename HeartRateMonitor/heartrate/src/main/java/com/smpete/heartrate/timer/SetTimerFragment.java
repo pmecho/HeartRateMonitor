@@ -10,6 +10,7 @@ import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.style.RelativeSizeSpan;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -204,10 +205,21 @@ public class SetTimerFragment extends Fragment implements HmsPickerDialogFragmen
         mStateText.setText(getResources().getStringArray(R.array.hiit_state_text)[mHiitValues.getCurrentState()]);
 
         long millis = mHiitValues.getMillisRemaining();
-        int hundredths = (int) ((millis / 10) % 100);
-        int seconds = (int) (millis / 1000);
+        int seconds = (int) TimeUnit.MILLISECONDS.toSeconds(millis);
+        if (seconds > 60) {
+            int minutes = (int) TimeUnit.SECONDS.toMinutes(seconds);
+            seconds -= (minutes * 60);
 
-        mTimeText.setText(String.format("%d %d", seconds, hundredths));
+            Spannable span = new SpannableString(String.format("%d%02d", minutes, seconds));
+            span.setSpan(new RelativeSizeSpan(0.75f), span.length() - 2, span.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+            mTimeText.setText(span);
+        } else {
+            int hundredths = (int) ((millis / 10) % 100);
+
+            Spannable span = new SpannableString(String.format("%02d%02d", seconds, hundredths));
+            span.setSpan(new RelativeSizeSpan(0.50f), span.length() - 2, span.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+            mTimeText.setText(span);
+        }
 
         mRepCounter.setText(getString(R.string.hiit_timer_rep_counter, mHiitValues.getCurrentRep(), mHiitValues.getIntervals()));
     }
@@ -217,10 +229,8 @@ public class SetTimerFragment extends Fragment implements HmsPickerDialogFragmen
         public void run() {
             long curTime = SystemClock.elapsedRealtime();
             long totalTime = mAccumulatedTime + (curTime - mStartTime);
-            int hundredths = (int) ((totalTime / 10) % 100);
-            int seconds = (int) (totalTime / 1000);
-
-            mTimeText.setText(String.format("%d %d", seconds, hundredths));
+            mHiitValues.setmMillisRemaining(totalTime);
+            updateTimerUi();
             mHandler.postDelayed(mTimeUpdateThread, 10);
         }
     };
@@ -252,7 +262,7 @@ public class SetTimerFragment extends Fragment implements HmsPickerDialogFragmen
         showTimer();
         mStartTime = SystemClock.elapsedRealtime();
         updateTimerUi();
-//        mHandler.post(mTimeUpdateThread);
+        mHandler.post(mTimeUpdateThread);
     }
 
     /*
