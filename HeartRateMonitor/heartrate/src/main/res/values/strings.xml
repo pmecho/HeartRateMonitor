@@ -26,4 +26,9 @@
     <string name="hiit_setup_rest">Rest:</string>
     <string name="hiit_setup_cool_down">Cool-down:</string>
     <string name="hiit_setup_start">START</string>
+
+    <string name="hiit_timer_state_warm_up">Warm Up</string>
+    <string name="hiit_timer_state_work">Work</string>
+    <string name="hiit_timer_state_rest">Rest</string>
+    <string name="hiit_timer_state_cool_down">Cool Down</string>
 </resources>

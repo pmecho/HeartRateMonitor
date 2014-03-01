@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            style="@style/HiitSetupLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/hiit_setup_warm_up" />
+
+        <Button
+            android:id="@+id/warm_up_time"
+            style="@style/RedBorderlessButton.Large"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="true"
+            android:text="5:00" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            style="@style/HiitSetupLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp"
+            android:text="@string/hiit_setup_intervals" />
+
+        <Button
+            android:id="@+id/intervals_value"
+            style="@style/RedBorderlessButton.Large"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="7" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            style="@style/HiitSetupLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp"
+            android:text="@string/hiit_setup_work" />
+
+        <Button
+            android:id="@+id/work_time"
+            style="@style/RedBorderlessButton.Large"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0:45" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            style="@style/HiitSetupLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp"
+            android:text="@string/hiit_setup_rest" />
+
+        <Button
+            android:id="@+id/rest_time"
+            style="@style/RedBorderlessButton.Large"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1:00" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            style="@style/HiitSetupLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp"
+            android:text="@string/hiit_setup_cool_down" />
+
+        <Button
+            android:id="@+id/cool_down_time"
+            style="@style/RedBorderlessButton.Large"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="5:00" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/start_button"
+        style="@style/RedBorderlessButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="8dp"
+        android:text="@string/hiit_setup_start" />
+</LinearLayout>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="hiit_state_text">
+        <item>@string/hiit_timer_state_warm_up</item>
+        <item>@string/hiit_timer_state_work</item>
+        <item>@string/hiit_timer_state_rest</item>
+        <item>@string/hiit_timer_state_cool_down</item>
+    </string-array>
+</resources>

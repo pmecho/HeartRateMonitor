@@ -23,6 +23,7 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import com.smpete.heartrate.AppPrefs;
 import com.smpete.heartrate.R;
+import com.smpete.heartrate.timer.TimerListener;
 import rx.Observable;
 import rx.Observer;
 import rx.android.observables.AndroidObservable;
@@ -33,7 +34,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class HeartRateFragment extends Fragment {
+public class HeartRateFragment extends Fragment implements TimerListener {
 
     private static final String SCAN_FRAGMENT_TAG = "scan";
     private static final int REQUEST_CODE_SCAN = 1001;
@@ -239,5 +240,20 @@ public class HeartRateFragment extends Fragment {
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
         intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
         return intentFilter;
+    }
+
+    @Override
+    public void timeUpdated(long millis) {
+
+    }
+
+    @Override
+    public void stateUpdate(int state) {
+
+    }
+
+    @Override
+    public void repUpdate(int rep) {
+
     }
 }
