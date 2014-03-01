@@ -13,11 +13,8 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import com.smpete.heartrate.hr.HeartRateFragment;
 import com.smpete.heartrate.timer.SetTimerFragment;
-import com.smpete.heartrate.timer.TimerControlListener;
-import com.smpete.heartrate.timer.TimerListener;
-import com.smpete.heartrate.timer.TimerWorkerFragment;
 
-public class MainActivity extends FragmentActivity implements ActionBar.TabListener, TimerListener, TimerControlListener {
+public class MainActivity extends FragmentActivity implements ActionBar.TabListener {
 
     private static final String WORKER_FRAGMENT_KEY = "workerFragment";
 
@@ -84,52 +81,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     public void onTabReselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
     }
 
-    /*
-     * Timer Listener
-     */
-
-    @Override
-    public void timeUpdated(long millis) {
-        mPagerAdapter.getCurrentTimerListener().timeUpdated(millis);
-    }
-
-    @Override
-    public void stateUpdate(int state) {
-        mPagerAdapter.getCurrentTimerListener().stateUpdate(state);
-    }
-
-    @Override
-    public void repUpdate(int rep) {
-        mPagerAdapter.getCurrentTimerListener().repUpdate(rep);
-    }
-
-    @Override
-    public void start() {
-        TimerWorkerFragment frag = (TimerWorkerFragment) getSupportFragmentManager().findFragmentByTag(WORKER_FRAGMENT_KEY);
-        if (frag == null) {
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            frag = new TimerWorkerFragment();
-            ft.add(frag, WORKER_FRAGMENT_KEY);
-            ft.commit();
-        } else {
-            frag.start();
-        }
-    }
-
-    @Override
-    public void pause() {
-
-    }
-
-    @Override
-    public void stop() {
-
-    }
-
-
     public class ViewPagerAdapter extends FragmentPagerAdapter {
-
-        private TimerListener mCurrentFragment;
 
         public ViewPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -147,18 +99,6 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         @Override
         public int getCount() {
             return 2;
-        }
-
-        @Override
-        public void setPrimaryItem(ViewGroup container, int position, Object object) {
-            if (mCurrentFragment != object) {
-                mCurrentFragment = (TimerListener) object;
-            }
-            super.setPrimaryItem(container, position, object);
-        }
-
-        public TimerListener getCurrentTimerListener() {
-            return mCurrentFragment;
         }
     }
 

@@ -5,6 +5,8 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -28,7 +30,7 @@ import com.smpete.heartrate.R;
 import java.util.concurrent.TimeUnit;
 
 public class SetTimerFragment extends Fragment implements HmsPickerDialogFragment.HmsPickerDialogHandler,
-        NumberPickerDialogFragment.NumberPickerDialogHandler, TimerListener {
+        NumberPickerDialogFragment.NumberPickerDialogHandler {
 
     private static final String BUNDLE_KEY_HIIT_VALUES = "hiitValues";
 
@@ -51,18 +53,12 @@ public class SetTimerFragment extends Fragment implements HmsPickerDialogFragmen
     private HiitValues mHiitValues;
     private int mHiitState;
     private int mCompletedReps;
-    private TimerControlListener mListener;
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
 
-        try {
-            mListener = (TimerControlListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement TimerControlListener");
-        }
-    }
+    // Used for calculating the time from the start taking into account the pause times
+    long mStartTime = 0;
+    long mAccumulatedTime = 0;
+    private Handler mHandler = new Handler();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -191,21 +187,16 @@ public class SetTimerFragment extends Fragment implements HmsPickerDialogFragmen
         mStateText.setText(getResources().getStringArray(R.array.hiit_state_text)[newState]);
     }
 
-    @Override
-    public void timeUpdated(long millis) {
-        long seconds = millis / 100;
-        mTimeText.setText(String.valueOf(seconds));
-    }
+    Runnable mTimeUpdateThread = new Runnable() {
+        @Override
+        public void run() {
+            long curTime = SystemClock.elapsedRealtime();
+            long totalTime = mAccumulatedTime + (curTime - mStartTime);
 
-    @Override
-    public void stateUpdate(int state) {
-
-    }
-
-    @Override
-    public void repUpdate(int rep) {
-
-    }
+            mTimeText.setText(String.valueOf(totalTime));
+            mHandler.postDelayed(mTimeUpdateThread, 10);
+        }
+    };
 
     /*
      * On Clicks
@@ -231,7 +222,8 @@ public class SetTimerFragment extends Fragment implements HmsPickerDialogFragmen
     @OnClick(R.id.start_button)
     public void onStartTapped() {
         showTimer();
-        mListener.start();
+        mStartTime = SystemClock.elapsedRealtime();
+        mHandler.post(mTimeUpdateThread);
     }
 
     /*
