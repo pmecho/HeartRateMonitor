@@ -5,11 +5,20 @@ import android.os.Parcelable;
 import com.smpete.heartrate.AppPrefs;
 
 public class HiitValues implements Parcelable {
+    public static int HIIT_STATE_WARM_UP = 0;
+    public static int HIIT_STATE_WORK = 1;
+    public static int HIIT_STATE_REST = 2;
+    public static int HIIT_STATE_COOL_DOWN = 3;
+
     private int mWarmUpSeconds;
     private int mIntervals;
     private int mWorkSeconds;
     private int mRestSeconds;
     private int mCoolDownSeconds;
+
+    private int mCurrentState;
+    private int mCurrentRep;
+    private long mMillisRemaining;
 
     public HiitValues() {
         AppPrefs prefs = AppPrefs.INSTANCE;
@@ -18,6 +27,22 @@ public class HiitValues implements Parcelable {
         mWorkSeconds = prefs.getHiitWork();
         mRestSeconds = prefs.getHiitRest();
         mCoolDownSeconds = prefs.getHiitCoolDown();
+
+        mCurrentState = HIIT_STATE_WARM_UP;
+        mCurrentRep = 0;
+        mMillisRemaining = mWarmUpSeconds * 1000;
+    }
+
+    protected HiitValues(Parcel in) {
+        mWarmUpSeconds = in.readInt();
+        mIntervals = in.readInt();
+        mWorkSeconds = in.readInt();
+        mRestSeconds = in.readInt();
+        mCoolDownSeconds = in.readInt();
+
+        mCurrentState = in.readInt();
+        mCurrentRep = in.readInt();
+        mMillisRemaining = in.readLong();
     }
 
     public void saveToPrefs() {
@@ -27,7 +52,6 @@ public class HiitValues implements Parcelable {
         prefs.setHiitWork(mWorkSeconds);
         prefs.setHiitRest(mRestSeconds);
         prefs.setHiitCoolDown(mCoolDownSeconds);
-
     }
 
     public int getWarmUpSeconds() {
@@ -35,7 +59,9 @@ public class HiitValues implements Parcelable {
     }
 
     public void setWarmUpSeconds(int warmUpSeconds) {
-        this.mWarmUpSeconds = warmUpSeconds;
+        mWarmUpSeconds = warmUpSeconds;
+        mMillisRemaining = mWarmUpSeconds * 1000;
+
     }
 
     public int getIntervals() {
@@ -43,7 +69,7 @@ public class HiitValues implements Parcelable {
     }
 
     public void setIntervals(int intervals) {
-        this.mIntervals = intervals;
+        mIntervals = intervals;
     }
 
     public int getWorkSeconds() {
@@ -51,7 +77,7 @@ public class HiitValues implements Parcelable {
     }
 
     public void setWorkSeconds(int workSeconds) {
-        this.mWorkSeconds = workSeconds;
+        mWorkSeconds = workSeconds;
     }
 
     public int getRestSeconds() {
@@ -59,7 +85,7 @@ public class HiitValues implements Parcelable {
     }
 
     public void setRestSeconds(int restSeconds) {
-        this.mRestSeconds = restSeconds;
+        mRestSeconds = restSeconds;
     }
 
     public int getCoolDownSeconds() {
@@ -67,15 +93,31 @@ public class HiitValues implements Parcelable {
     }
 
     public void setCoolDownSeconds(int coolDownSeconds) {
-        this.mCoolDownSeconds = coolDownSeconds;
+        mCoolDownSeconds = coolDownSeconds;
     }
 
-    protected HiitValues(Parcel in) {
-        mWarmUpSeconds = in.readInt();
-        mIntervals = in.readInt();
-        mWorkSeconds = in.readInt();
-        mRestSeconds = in.readInt();
-        mCoolDownSeconds = in.readInt();
+    public int getCurrentState() {
+        return mCurrentState;
+    }
+
+    public void setCurrentState(int currentState) {
+        mCurrentState = currentState;
+    }
+
+    public int getCurrentRep() {
+        return mCurrentRep;
+    }
+
+    public void setCurrentRep(int currentRep) {
+        mCurrentRep = currentRep;
+    }
+
+    public long getMillisRemaining() {
+        return mMillisRemaining;
+    }
+
+    public void setmMillisRemaining(long millisRemaining) {
+        mMillisRemaining = millisRemaining;
     }
 
     @Override
@@ -90,6 +132,10 @@ public class HiitValues implements Parcelable {
         dest.writeInt(mWorkSeconds);
         dest.writeInt(mRestSeconds);
         dest.writeInt(mCoolDownSeconds);
+
+        dest.writeInt(mCurrentState);
+        dest.writeInt(mCurrentRep);
+        dest.writeLong(mMillisRemaining);
     }
 
     public static final Parcelable.Creator<HiitValues> CREATOR = new Parcelable.Creator<HiitValues>() {

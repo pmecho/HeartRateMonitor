@@ -33,6 +33,7 @@ public class SetTimerFragment extends Fragment implements HmsPickerDialogFragmen
         NumberPickerDialogFragment.NumberPickerDialogHandler {
 
     private static final String BUNDLE_KEY_HIIT_VALUES = "hiitValues";
+    private static final String BUNDLE_KEY_IS_SETUP = "is_setup";
 
     // Setup views
     @InjectView(R.id.warm_up_time) Button mWarmUpButton;
@@ -54,6 +55,8 @@ public class SetTimerFragment extends Fragment implements HmsPickerDialogFragmen
     private int mHiitState;
     private int mCompletedReps;
 
+    private boolean mSetup = true;
+
 
     // Used for calculating the time from the start taking into account the pause times
     long mStartTime = 0;
@@ -65,10 +68,19 @@ public class SetTimerFragment extends Fragment implements HmsPickerDialogFragmen
         View v = inflater.inflate(R.layout.fragment_timer, container, false);
         ButterKnife.inject(this, v);
 
-        if (savedInstanceState != null && savedInstanceState.containsKey(BUNDLE_KEY_HIIT_VALUES)) {
+        if (savedInstanceState != null) {
             mHiitValues = savedInstanceState.getParcelable(BUNDLE_KEY_HIIT_VALUES);
+            mSetup = savedInstanceState.getBoolean(BUNDLE_KEY_IS_SETUP);
         } else {
             mHiitValues = new HiitValues();
+        }
+
+        if (mSetup) {
+            mSetupLayout.setVisibility(View.VISIBLE);
+            mTimerLayout.setVisibility(View.GONE);
+        } else {
+            mSetupLayout.setVisibility(View.GONE);
+            mTimerLayout.setVisibility(View.VISIBLE);
         }
 
         mWarmUpButton.setText(formatTime(mHiitValues.getWarmUpSeconds()));
@@ -92,6 +104,7 @@ public class SetTimerFragment extends Fragment implements HmsPickerDialogFragmen
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable(BUNDLE_KEY_HIIT_VALUES, mHiitValues);
+        outState.putBoolean(BUNDLE_KEY_IS_SETUP, mSetup);
     }
 
     private void showTimer() {
@@ -161,7 +174,7 @@ public class SetTimerFragment extends Fragment implements HmsPickerDialogFragmen
      */
 
     private void transitionToWarmUp() {
-        setHiitState(HiitUtils.HIIT_STATE_WARM_UP);
+        setHiitState(HiitValues.HIIT_STATE_WARM_UP);
 
         Spannable span = new SpannableString("4167");
         span.setSpan(new RelativeSizeSpan(0.8f), 2, 3, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
@@ -169,22 +182,34 @@ public class SetTimerFragment extends Fragment implements HmsPickerDialogFragmen
     }
 
     private void transitionToWorkInterval() {
-        setHiitState(HiitUtils.HIIT_STATE_WORK);
+        setHiitState(HiitValues.HIIT_STATE_WORK);
     }
 
     private void transitionToRestInterval() {
-        setHiitState(HiitUtils.HIIT_STATE_REST);
+        setHiitState(HiitValues.HIIT_STATE_REST);
         mCompletedReps++;
     }
 
     private void transitionToCoolDown() {
-        setHiitState(HiitUtils.HIIT_STATE_COOL_DOWN);
+        setHiitState(HiitValues.HIIT_STATE_COOL_DOWN);
         mCompletedReps++;
     }
 
     private void setHiitState(int newState) {
-        mHiitState = newState;
+        mHiitValues.setCurrentState(newState);
         mStateText.setText(getResources().getStringArray(R.array.hiit_state_text)[newState]);
+    }
+
+    private void updateTimerUi() {
+        mStateText.setText(getResources().getStringArray(R.array.hiit_state_text)[mHiitValues.getCurrentState()]);
+
+        long millis = mHiitValues.getMillisRemaining();
+        int hundredths = (int) ((millis / 10) % 100);
+        int seconds = (int) (millis / 1000);
+
+        mTimeText.setText(String.format("%d %d", seconds, hundredths));
+
+        mRepCounter.setText(getString(R.string.hiit_timer_rep_counter, mHiitValues.getCurrentRep(), mHiitValues.getIntervals()));
     }
 
     Runnable mTimeUpdateThread = new Runnable() {
@@ -192,8 +217,10 @@ public class SetTimerFragment extends Fragment implements HmsPickerDialogFragmen
         public void run() {
             long curTime = SystemClock.elapsedRealtime();
             long totalTime = mAccumulatedTime + (curTime - mStartTime);
+            int hundredths = (int) ((totalTime / 10) % 100);
+            int seconds = (int) (totalTime / 1000);
 
-            mTimeText.setText(String.valueOf(totalTime));
+            mTimeText.setText(String.format("%d %d", seconds, hundredths));
             mHandler.postDelayed(mTimeUpdateThread, 10);
         }
     };
@@ -221,9 +248,11 @@ public class SetTimerFragment extends Fragment implements HmsPickerDialogFragmen
 
     @OnClick(R.id.start_button)
     public void onStartTapped() {
+        mSetup = false;
         showTimer();
         mStartTime = SystemClock.elapsedRealtime();
-        mHandler.post(mTimeUpdateThread);
+        updateTimerUi();
+//        mHandler.post(mTimeUpdateThread);
     }
 
     /*
