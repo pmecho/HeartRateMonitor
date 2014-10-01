@@ -17,21 +17,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
+
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import com.smpete.heartrate.AppPrefs;
-import com.smpete.heartrate.R;
-import rx.Observable;
-import rx.Observer;
-import rx.android.observables.AndroidObservable;
-import rx.subjects.BehaviorSubject;
-import rx.util.functions.Action1;
 
-import java.util.LinkedList;
+import com.smpete.heartrate.HeartRateApplication;
+import com.smpete.heartrate.data.AppPrefs;
+import com.smpete.heartrate.R;
+
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+
+import javax.inject.Inject;
 
 public class HeartRateFragment extends Fragment {
 
@@ -61,6 +58,9 @@ public class HeartRateFragment extends Fragment {
     private int[] mPreviousRates = new int[MOVING_AVERAGE_LENGTH];
     private int mPreviousIndex = 0;
 
+    @Inject
+    AppPrefs mPrefs;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -73,7 +73,9 @@ public class HeartRateFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        mDeviceAddress = AppPrefs.INSTANCE.getLastHeartRateAddress();
+        ((HeartRateApplication) getActivity().getApplication()).inject(this);
+
+        mDeviceAddress = mPrefs.getLastHeartRateAddress();
 
         Intent gattServiceIntent = new Intent(getActivity(), BluetoothLeService.class);
         getActivity().bindService(gattServiceIntent, mServiceConnection, Activity.BIND_AUTO_CREATE);
@@ -148,7 +150,7 @@ public class HeartRateFragment extends Fragment {
                     BluetoothGattCharacteristic characteristic = gattService.getCharacteristic(BluetoothLeService.UUID_HEART_RATE_MEASUREMENT);
                     if (characteristic != null) {
                         mBluetoothLeService.setCharacteristicNotification(characteristic, true);
-                        AppPrefs.INSTANCE.setLastHeartRateAddress(mDeviceAddress);
+                        mPrefs.setLastHeartRateAddress(mDeviceAddress);
                         setState(MONITOR_STATE_CONNECTED);
                         break;
                     }

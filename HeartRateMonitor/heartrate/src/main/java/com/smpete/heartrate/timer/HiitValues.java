@@ -2,7 +2,7 @@ package com.smpete.heartrate.timer;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import com.smpete.heartrate.AppPrefs;
+import com.smpete.heartrate.data.AppPrefs;
 
 public class HiitValues implements Parcelable {
     public static int HIIT_STATE_WARM_UP = 0;
@@ -20,8 +20,7 @@ public class HiitValues implements Parcelable {
     private int mCurrentRep;
     private long mMillisRemaining;
 
-    public HiitValues() {
-        AppPrefs prefs = AppPrefs.INSTANCE;
+    public HiitValues(AppPrefs prefs) {
         mWarmUpSeconds = prefs.getHiitWarmUp();
         mIntervals = prefs.getHiitIntervals();
         mWorkSeconds = prefs.getHiitWork();
@@ -45,8 +44,7 @@ public class HiitValues implements Parcelable {
         mMillisRemaining = in.readLong();
     }
 
-    public void saveToPrefs() {
-        AppPrefs prefs = AppPrefs.INSTANCE;
+    public void saveToPrefs(AppPrefs prefs) {
         prefs.setHiitWarmUp(mWarmUpSeconds);
         prefs.setHiitIntervals(mIntervals);
         prefs.setHiitWork(mWorkSeconds);

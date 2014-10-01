@@ -1,17 +1,23 @@
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion "19.0.1"
+    compileSdkVersion 'android-L'
+    buildToolsVersion "20"
 
     defaultConfig {
-        minSdkVersion 18
-        targetSdkVersion 19
+        minSdkVersion 'L'
+        targetSdkVersion 'L'
         versionCode 1
         versionName "1.0"
     }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+
     buildTypes {
-        release {
+        debug {
             runProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
@@ -19,11 +25,13 @@ android {
 }
 
 dependencies {
-    compile 'com.jakewharton:butterknife:4.0.+'
+    compile 'com.jakewharton:butterknife:5.1.2'
     compile 'com.android.support:support-v13:19.0.+'
     compile 'com.netflix.rxjava:rxjava-core:0.16.+'
     compile 'com.netflix.rxjava:rxjava-android:0.16.+'
     compile project(':android-betterpickers:library')
 
+    compile 'com.squareup.dagger:dagger:1.2.2'
+    provided 'com.squareup.dagger:dagger-compiler:1.2.2'
 
 }

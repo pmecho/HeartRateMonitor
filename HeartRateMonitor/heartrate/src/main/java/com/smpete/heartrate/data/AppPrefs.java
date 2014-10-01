@@ -1,10 +1,17 @@
-package com.smpete.heartrate;
+package com.smpete.heartrate.data;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-public enum AppPrefs {
-    INSTANCE;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+@Singleton
+public class AppPrefs {
+
+    @Inject
+    Application mContext;
 
     private static final String PREFS_NAME = "prefs";
 
@@ -18,7 +25,8 @@ public enum AppPrefs {
     private SharedPreferences mSharedPrefs;
     private SharedPreferences.Editor mEditor;
 
-    public void init(Context context) {
+    @Inject
+    public AppPrefs(Context context) {
         mSharedPrefs = context.getSharedPreferences(PREFS_NAME, 0);
         mEditor = mSharedPrefs.edit();
     }

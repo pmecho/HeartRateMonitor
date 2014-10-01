@@ -26,9 +26,13 @@ import com.doomonafireball.betterpickers.hmspicker.HmsPickerBuilder;
 import com.doomonafireball.betterpickers.hmspicker.HmsPickerDialogFragment;
 import com.doomonafireball.betterpickers.numberpicker.NumberPickerBuilder;
 import com.doomonafireball.betterpickers.numberpicker.NumberPickerDialogFragment;
+import com.smpete.heartrate.HeartRateApplication;
 import com.smpete.heartrate.R;
+import com.smpete.heartrate.data.AppPrefs;
 
 import java.util.concurrent.TimeUnit;
+
+import javax.inject.Inject;
 
 public class SetTimerFragment extends Fragment implements HmsPickerDialogFragment.HmsPickerDialogHandler,
         NumberPickerDialogFragment.NumberPickerDialogHandler {
@@ -58,11 +62,20 @@ public class SetTimerFragment extends Fragment implements HmsPickerDialogFragmen
 
     private boolean mSetup = true;
 
+    @Inject
+    AppPrefs mPrefs;
+
 
     // Used for calculating the time from the start taking into account the pause times
     long mStartTime = 0;
     long mAccumulatedTime = 0;
     private Handler mHandler = new Handler();
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        ((HeartRateApplication) activity.getApplication()).inject(this);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -73,7 +86,7 @@ public class SetTimerFragment extends Fragment implements HmsPickerDialogFragmen
             mHiitValues = savedInstanceState.getParcelable(BUNDLE_KEY_HIIT_VALUES);
             mSetup = savedInstanceState.getBoolean(BUNDLE_KEY_IS_SETUP);
         } else {
-            mHiitValues = new HiitValues();
+            mHiitValues = new HiitValues(mPrefs);
         }
 
         if (mSetup) {
@@ -82,6 +95,7 @@ public class SetTimerFragment extends Fragment implements HmsPickerDialogFragmen
         } else {
             mSetupLayout.setVisibility(View.GONE);
             mTimerLayout.setVisibility(View.VISIBLE);
+            updateTimerUi();
         }
 
         mWarmUpButton.setText(formatTime(mHiitValues.getWarmUpSeconds()));
@@ -90,15 +104,14 @@ public class SetTimerFragment extends Fragment implements HmsPickerDialogFragmen
         mRestButton.setText((formatTime(mHiitValues.getRestSeconds())));
         mCoolDownButton.setText((formatTime(mHiitValues.getCoolDownSeconds())));
 
-        mTimerLayout.setVisibility(View.GONE);
-
         return v;
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        mHiitValues.saveToPrefs();
+        mHiitValues.saveToPrefs(mPrefs);
+        mHandler.removeCallbacks(mTimeUpdateThread);
     }
 
     @Override
