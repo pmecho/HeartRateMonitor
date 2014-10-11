@@ -1,12 +1,16 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
-        <item name="android:actionBarStyle">@style/AppActionBar</item>
-    </style>
-
-    <style name="AppActionBar" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
-        <item name="android:background">@color/main_red</item>
+    <style name="AppTheme" parent="android:Theme.Material.Light">
+        <!-- Main theme colors -->
+        <!--   your app's branding color (for the app bar) -->
+        <item name="android:colorPrimary">@color/primary</item>
+        <!--   darker variant of colorPrimary (for status bar, contextual app bars) -->
+        <item name="android:colorPrimaryDark">@color/primary_dark</item>
+        <!--   theme UI controls like checkboxes and text fields -->
+        <item name="android:colorAccent">@color/accent</item>
+        <item name="android:textColorPrimary">@color/primary_text</item>
+        <item name="android:colorButtonNormal">@color/accent</item>
     </style>
 
     <style name="BigTextStyle">
@@ -20,8 +24,8 @@
         <item name="android:fontFamily">sans-serif-light</item>
     </style>
 
-    <style name="RedBorderlessButton" parent="@android:style/Widget.Holo.Button.Borderless">
-        <item name="android:textColor">@color/main_red</item>
+    <style name="RedBorderlessButton" parent="@android:style/Widget.Material.Button.Borderless">
+        <item name="android:textColor">@color/primary</item>
         <item name="android:textSize">40sp</item>
         <item name="android:textStyle">bold</item>
     </style>
@@ -33,6 +37,8 @@
         <item name="android:textSize">50sp</item>
         <item name="android:fontFamily">sans-serif-light</item>
     </style>
+    
+    <!--<style name="Stand"-->
 
 
 

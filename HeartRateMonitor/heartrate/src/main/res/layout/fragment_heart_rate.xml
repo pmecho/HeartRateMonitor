@@ -16,8 +16,7 @@
         android:layout_below="@id/heart_rate_value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/main_red"
-        style="?android:attr/borderlessButtonStyle"
+        style="@android:style/Widget.Material.Button"
         android:text="@string/connect_button_text"/>
 
 </RelativeLayout>
