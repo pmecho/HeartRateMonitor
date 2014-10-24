@@ -15,21 +15,28 @@ import android.widget.Toast;
 
 import com.smpete.heartrate.hr.HeartRateFragment;
 import com.smpete.heartrate.timer.SetTimerFragment;
+import com.smpete.heartrate.timer.TimerContainerView;
 import com.smpete.heartrate.widget.SlidingTabLayout;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.Optional;
 
 public class MainActivity extends ActionBarActivity {
 
     private static final String WORKER_FRAGMENT_KEY = "workerFragment";
 
+    @Optional
     @InjectView(R.id.view_pager)
     ViewPager mViewPager;
     @InjectView(R.id.toolbar)
     Toolbar mToolbar;
+    @Optional
     @InjectView(R.id.tab_layout)
     SlidingTabLayout mTabLayout;
+    @Optional
+    @InjectView(R.id.timer_container)
+    TimerContainerView mTimerContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,13 +51,20 @@ public class MainActivity extends ActionBarActivity {
             finish();
         }
 
-        // Set up pager
-        mViewPager.setAdapter(new ViewPagerAdapter(this, getSupportFragmentManager()));
+        // Only in landscape
+        if (mViewPager != null) {
+            // Set up pager
+            mViewPager.setAdapter(new ViewPagerAdapter(this, getSupportFragmentManager()));
 
-        // Set up tabs
-        mTabLayout.setCustomTabView(R.layout.tab_indicator, android.R.id.text1);
-        mTabLayout.setDistributeEvenly(true);
-        mTabLayout.setViewPager(mViewPager);
+            // Set up tabs
+            mTabLayout.setCustomTabView(R.layout.tab_indicator, android.R.id.text1);
+            mTabLayout.setDistributeEvenly(true);
+            mTabLayout.setViewPager(mViewPager);
+        }
+
+        if (mTimerContainer != null) {
+            mTimerContainer.showSetupView();
+        }
     }
 
     @Override
