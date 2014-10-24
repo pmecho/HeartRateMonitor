@@ -1,6 +1,5 @@
 package com.smpete.heartrate;
 
-import android.app.ActionBar;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -21,7 +20,7 @@ import com.smpete.heartrate.widget.SlidingTabLayout;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
-public class MainActivity extends ActionBarActivity implements ActionBar.TabListener {
+public class MainActivity extends ActionBarActivity {
 
     private static final String WORKER_FRAGMENT_KEY = "workerFragment";
 
@@ -31,8 +30,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     Toolbar mToolbar;
     @InjectView(R.id.tab_layout)
     SlidingTabLayout mTabLayout;
-
-    private ViewPagerAdapter mPagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,25 +45,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
 
         // Set up pager
-        mPagerAdapter = new ViewPagerAdapter(this, getSupportFragmentManager());
-        mViewPager.setAdapter(mPagerAdapter);
+        mViewPager.setAdapter(new ViewPagerAdapter(this, getSupportFragmentManager()));
 
-
+        // Set up tabs
         mTabLayout.setCustomTabView(R.layout.tab_indicator, android.R.id.text1);
         mTabLayout.setDistributeEvenly(true);
         mTabLayout.setViewPager(mViewPager);
-
-//        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-//            @Override
-//            public void onPageSelected(int position) {
-//                actionBar.setSelectedNavigationItem(position);
-//            }
-//        });
-//
-//        actionBar.addTab(actionBar.newTab().setText(R.string.tab_heart_rate).setTabListener(this));
-//        actionBar.addTab(actionBar.newTab().setText(R.string.tab_timer).setTabListener(this));
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -81,19 +66,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onTabSelected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-        mViewPager.setCurrentItem(tab.getPosition());
-    }
-
-    @Override
-    public void onTabUnselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-    }
-
-    @Override
-    public void onTabReselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
     }
 
     public static class ViewPagerAdapter extends FragmentPagerAdapter {
