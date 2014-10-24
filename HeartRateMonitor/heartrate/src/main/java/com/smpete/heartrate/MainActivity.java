@@ -1,24 +1,37 @@
 package com.smpete.heartrate;
 
 import android.app.ActionBar;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.v4.app.*;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewGroup;
 import android.widget.Toast;
-import butterknife.ButterKnife;
-import butterknife.InjectView;
+
 import com.smpete.heartrate.hr.HeartRateFragment;
 import com.smpete.heartrate.timer.SetTimerFragment;
+import com.smpete.heartrate.widget.SlidingTabLayout;
 
-public class MainActivity extends FragmentActivity implements ActionBar.TabListener {
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+
+public class MainActivity extends ActionBarActivity implements ActionBar.TabListener {
 
     private static final String WORKER_FRAGMENT_KEY = "workerFragment";
 
-    @InjectView(R.id.view_pager) ViewPager mViewPager;
+    @InjectView(R.id.view_pager)
+    ViewPager mViewPager;
+    @InjectView(R.id.toolbar)
+    Toolbar mToolbar;
+    @InjectView(R.id.tab_layout)
+    SlidingTabLayout mTabLayout;
+
     private ViewPagerAdapter mPagerAdapter;
 
     @Override
@@ -26,6 +39,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.inject(this);
+        setSupportActionBar(mToolbar);
 
         // TODO handle more eloquently
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
@@ -33,23 +47,24 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
             finish();
         }
 
-        // Set up action bar
-        final ActionBar actionBar = getActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-
         // Set up pager
-        mPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+        mPagerAdapter = new ViewPagerAdapter(this, getSupportFragmentManager());
         mViewPager.setAdapter(mPagerAdapter);
 
-        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                actionBar.setSelectedNavigationItem(position);
-            }
-        });
 
-        actionBar.addTab(actionBar.newTab().setText(R.string.tab_heart_rate).setTabListener(this));
-        actionBar.addTab(actionBar.newTab().setText(R.string.tab_timer).setTabListener(this));
+        mTabLayout.setCustomTabView(R.layout.tab_indicator, android.R.id.text1);
+        mTabLayout.setDistributeEvenly(true);
+        mTabLayout.setViewPager(mViewPager);
+
+//        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+//            @Override
+//            public void onPageSelected(int position) {
+//                actionBar.setSelectedNavigationItem(position);
+//            }
+//        });
+//
+//        actionBar.addTab(actionBar.newTab().setText(R.string.tab_heart_rate).setTabListener(this));
+//        actionBar.addTab(actionBar.newTab().setText(R.string.tab_timer).setTabListener(this));
     }
 
 
@@ -81,10 +96,13 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     public void onTabReselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
     }
 
-    public class ViewPagerAdapter extends FragmentPagerAdapter {
+    public static class ViewPagerAdapter extends FragmentPagerAdapter {
 
-        public ViewPagerAdapter(FragmentManager fm) {
+        private Context mContext;
+
+        public ViewPagerAdapter(Context context, FragmentManager fm) {
             super(fm);
+            mContext = context;
         }
 
         @Override
@@ -93,6 +111,18 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
                 return new HeartRateFragment();
             } else {
                 return new SetTimerFragment();
+            }
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            switch (position) {
+                case 0:
+                    return mContext.getString(R.string.tab_heart_rate);
+                case 1:
+                    return mContext.getString(R.string.tab_timer);
+                default:
+                    return "";
             }
         }
 

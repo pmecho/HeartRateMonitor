@@ -22,10 +22,6 @@ import android.widget.TextView;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import com.doomonafireball.betterpickers.hmspicker.HmsPickerBuilder;
-import com.doomonafireball.betterpickers.hmspicker.HmsPickerDialogFragment;
-import com.doomonafireball.betterpickers.numberpicker.NumberPickerBuilder;
-import com.doomonafireball.betterpickers.numberpicker.NumberPickerDialogFragment;
 import com.smpete.heartrate.HeartRateApplication;
 import com.smpete.heartrate.R;
 import com.smpete.heartrate.data.AppPrefs;
@@ -34,8 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-public class SetTimerFragment extends Fragment implements HmsPickerDialogFragment.HmsPickerDialogHandler,
-        NumberPickerDialogFragment.NumberPickerDialogHandler {
+public class SetTimerFragment extends Fragment {
 
     private static final String BUNDLE_KEY_HIIT_VALUES = "hiitValues";
     private static final String BUNDLE_KEY_IS_SETUP = "is_setup";
@@ -168,12 +163,12 @@ public class SetTimerFragment extends Fragment implements HmsPickerDialogFragmen
      */
 
     private void showTimePicker(int reference) {
-        HmsPickerBuilder builder = new HmsPickerBuilder()
-                .setFragmentManager(getFragmentManager())
-                .setTargetFragment(this)
-                .setReference(reference)
-                .setStyleResId(R.style.BetterPickersDialogFragment_Light);
-        builder.show();
+//        HmsPickerBuilder builder = new HmsPickerBuilder()
+//                .setFragmentManager(getFragmentManager())
+//                .setTargetFragment(this)
+//                .setReference(reference)
+//                .setStyleResId(R.style.BetterPickersDialogFragment_Light);
+//        builder.show();
     }
 
     private String formatTime(int seconds) {
@@ -259,14 +254,14 @@ public class SetTimerFragment extends Fragment implements HmsPickerDialogFragmen
 
     @OnClick(R.id.intervals_value)
     public void onIntervalsTapped() {
-        NumberPickerBuilder builder = new NumberPickerBuilder()
-                .setFragmentManager(getFragmentManager())
-                .setTargetFragment(this)
-                .setStyleResId(R.style.BetterPickersDialogFragment_Light)
-                .setMinNumber(1)
-                .setDecimalVisibility(View.GONE)
-                .setPlusMinusVisibility(View.GONE);
-        builder.show();
+//        NumberPickerBuilder builder = new NumberPickerBuilder()
+//                .setFragmentManager(getFragmentManager())
+//                .setTargetFragment(this)
+//                .setStyleResId(R.style.BetterPickersDialogFragment_Light)
+//                .setMinNumber(1)
+//                .setDecimalVisibility(View.GONE)
+//                .setPlusMinusVisibility(View.GONE);
+//        builder.show();
     }
 
     @OnClick(R.id.start_button)
@@ -282,37 +277,37 @@ public class SetTimerFragment extends Fragment implements HmsPickerDialogFragmen
      * Time/Number dialog handlers
      */
 
-    @Override
-    public void onDialogHmsSet(int reference, int minutes, int seconds) {
-        int totalSeconds = minutes * 60 + seconds;
-        Button button = null;
-        switch (reference) {
-            case R.id.warm_up_time:
-                mHiitValues.setWarmUpSeconds(totalSeconds);
-                button = mWarmUpButton;
-                break;
-            case R.id.work_time:
-                mHiitValues.setWorkSeconds(totalSeconds);
-                button = mWorkButton;
-                break;
-            case R.id.rest_time:
-                mHiitValues.setRestSeconds(totalSeconds);
-                button = mRestButton;
-                break;
-            case R.id.cool_down_time:
-                mHiitValues.setCoolDownSeconds(totalSeconds);
-                button = mCoolDownButton;
-                break;
-        }
+//    @Override
+//    public void onDialogHmsSet(int reference, int minutes, int seconds) {
+//        int totalSeconds = minutes * 60 + seconds;
+//        Button button = null;
+//        switch (reference) {
+//            case R.id.warm_up_time:
+//                mHiitValues.setWarmUpSeconds(totalSeconds);
+//                button = mWarmUpButton;
+//                break;
+//            case R.id.work_time:
+//                mHiitValues.setWorkSeconds(totalSeconds);
+//                button = mWorkButton;
+//                break;
+//            case R.id.rest_time:
+//                mHiitValues.setRestSeconds(totalSeconds);
+//                button = mRestButton;
+//                break;
+//            case R.id.cool_down_time:
+//                mHiitValues.setCoolDownSeconds(totalSeconds);
+//                button = mCoolDownButton;
+//                break;
+//        }
+//
+//        if (button != null) {
+//            button.setText(formatTime(totalSeconds));
+//        }
+//    }
 
-        if (button != null) {
-            button.setText(formatTime(totalSeconds));
-        }
-    }
-
-    @Override
-    public void onDialogNumberSet(int reference, int number, double decimal, boolean isNegative, double fullNumber) {
-        mHiitValues.setIntervals(number);
-        mIntervalsButton.setText(String.format("%d", number));
-    }
+//    @Override
+//    public void onDialogNumberSet(int reference, int number, double decimal, boolean isNegative, double fullNumber) {
+//        mHiitValues.setIntervals(number);
+//        mIntervalsButton.setText(String.format("%d", number));
+//    }
 }

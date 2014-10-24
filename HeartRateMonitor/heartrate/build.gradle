@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 'android-L'
-    buildToolsVersion "20"
+    compileSdkVersion 21
+    buildToolsVersion "21.0.2"
 
     defaultConfig {
-        minSdkVersion 'L'
-        targetSdkVersion 'L'
+        minSdkVersion 18
+        targetSdkVersion 21
         versionCode 1
         versionName "1.0"
     }
@@ -26,10 +26,10 @@ android {
 
 dependencies {
     compile 'com.jakewharton:butterknife:5.1.2'
-    compile 'com.android.support:support-v13:19.0.+'
+    compile 'com.android.support:support-v13:21.0.0'
+    compile 'com.android.support:appcompat-v7:21.0.0'
     compile 'com.netflix.rxjava:rxjava-core:0.16.+'
     compile 'com.netflix.rxjava:rxjava-android:0.16.+'
-    compile project(':android-betterpickers:library')
 
     compile 'com.squareup.dagger:dagger:1.2.2'
     provided 'com.squareup.dagger:dagger-compiler:1.2.2'
